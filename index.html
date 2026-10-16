@@ -1,36 +1,42 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#14b8a6" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
-    <title>CalmPop | Private Stress Relief That Learns What Works for You</title>
-    <meta name="description" content="Private stress relief that learns what works for you. 10 interactive procedural micro-games with on-device recommendation. Zero tracking, 100% on-device." />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://calmpop.app/" />
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://calmpop.app/" />
-    <meta property="og:title" content="CalmPop | Private Stress Relief That Learns What Works for You" />
-    <meta property="og:description" content="Private stress relief that learns what works for you. 10 procedural micro-games, on-device bandit engine, zero accounts, works offline." />
-    <meta property="og:image" content="https://calmpop.app/og-image.png" />
-    <meta property="og:site_name" content="CalmPop" />
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3766393471760365"
+    crossorigin="anonymous"></script>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#14b8a6" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+  <title>CalmPop | Private Stress Relief That Learns What Works for You</title>
+  <meta name="description"
+    content="Private stress relief that learns what works for you. 10 interactive procedural micro-games with on-device recommendation. Zero tracking, 100% on-device." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://calmpop.app/" />
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://calmpop.app/" />
-    <meta name="twitter:title" content="CalmPop | Private Stress Relief That Learns What Works for You" />
-    <meta name="twitter:description" content="Private stress relief that learns what works for you. 10 procedural micro-games, on-device bandit engine, zero accounts, works offline." />
-    <meta name="twitter:image" content="https://calmpop.app/og-image.png" />
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://calmpop.app/" />
+  <meta property="og:title" content="CalmPop | Private Stress Relief That Learns What Works for You" />
+  <meta property="og:description"
+    content="Private stress relief that learns what works for you. 10 procedural micro-games, on-device bandit engine, zero accounts, works offline." />
+  <meta property="og:image" content="https://calmpop.app/og-image.png" />
+  <meta property="og:site_name" content="CalmPop" />
 
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://calmpop.app/" />
+  <meta name="twitter:title" content="CalmPop | Private Stress Relief That Learns What Works for You" />
+  <meta name="twitter:description"
+    content="Private stress relief that learns what works for you. 10 procedural micro-games, on-device bandit engine, zero accounts, works offline." />
+  <meta name="twitter:image" content="https://calmpop.app/og-image.png" />
 
-    <!-- Structured Data (JSON-LD WebApplication schema) -->
-    <script type="application/ld+json">
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+
+  <!-- Structured Data (JSON-LD WebApplication schema) -->
+  <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
@@ -48,20 +54,24 @@
     }
     </script>
 
-    <!-- Google Fonts for Serene Typography -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  </head>
-  <body class="antialiased selection:bg-teal-500/20 selection:text-teal-700 dark:selection:text-teal-200">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script>
-      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
-        });
-      }
-    </script>
-  </body>
+  <!-- Google Fonts for Serene Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+    rel="stylesheet">
+</head>
+
+<body class="antialiased selection:bg-teal-500/20 selection:text-teal-700 dark:selection:text-teal-200">
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  <script>
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => { });
+      });
+    }
+  </script>
+</body>
+
 </html>

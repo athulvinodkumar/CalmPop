@@ -142,7 +142,7 @@ export const LevelIntermissionModal: React.FC = () => {
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="w-full max-w-lg glass-panel bg-slate-900/95 text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-700/80 space-y-6"
+            className="w-full max-w-lg max-h-[88vh] max-h-[88dvh] overflow-y-auto overscroll-contain glass-panel bg-slate-900/95 text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-700/80 space-y-6 touch-pan-y"
           >
             {/* Top Indicator */}
             <div className="text-center space-y-1">

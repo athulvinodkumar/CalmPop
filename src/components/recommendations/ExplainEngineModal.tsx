@@ -29,7 +29,7 @@ export const ExplainEngineModal: React.FC = () => {
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className="relative w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-3xl glass-panel bg-white/95 dark:bg-slate-900/95 p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800"
+          className="relative w-full max-w-2xl max-h-[85vh] max-h-[85dvh] overflow-y-auto overscroll-contain rounded-3xl glass-panel bg-white/95 dark:bg-slate-900/95 p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 touch-pan-y"
         >
           {/* Close button */}
           <button

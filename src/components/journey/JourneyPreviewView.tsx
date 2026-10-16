@@ -49,7 +49,7 @@ export const JourneyPreviewView: React.FC = () => {
     : 'grid grid-cols-1 md:grid-cols-3 gap-4';
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
+    <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12 touch-pan-y">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>

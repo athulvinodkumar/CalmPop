@@ -546,16 +546,21 @@ class SoundEngine {
   }
 
   /**
-   * 5. Pentatonic Calm Keys: Pure Bell tones (C Major Pentatonic)
+   * 5. Calm Keys: Pure Bell tones (C Major Diatonic with F & B, or Pentatonic)
    * Warm fundamental + soft triangle overtone shimmer
    */
-  public playPentatonicNote(noteIndex: number, octave = 4) {
+  public playCalmKeyNote(noteIndex: number, scaleType: 'diatonic' | 'pentatonic' | 'extended' = 'diatonic', octave = 4) {
     if (this.isMuted) return;
     try {
       this.initContext();
       if (!this.ctx || !this.masterGain) return;
 
-      const scale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
+      // Pentatonic: C4, D4, E4, G4, A4, C5, D5, E5
+      const pentatonicScale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25];
+      // Full Diatonic C Major scale: C4, D4, E4, F4 (349.23), G4, A4, B4 (493.88), C5, D5, E5
+      const diatonicScale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25];
+
+      const scale = scaleType === 'pentatonic' ? pentatonicScale : diatonicScale;
       const freq = (scale[noteIndex % scale.length] || 261.63) * Math.pow(2, octave - 4);
       const now = this.ctx.currentTime;
 
@@ -601,6 +606,10 @@ class SoundEngine {
     } catch {
       // Audio safety
     }
+  }
+
+  public playPentatonicNote(noteIndex: number, octave = 4) {
+    this.playCalmKeyNote(noteIndex, 'pentatonic', octave);
   }
 
   /**

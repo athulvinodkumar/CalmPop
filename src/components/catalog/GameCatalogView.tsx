@@ -25,7 +25,7 @@ export const GameCatalogView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12">
+    <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12 touch-pan-y">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
@@ -34,7 +34,7 @@ export const GameCatalogView: React.FC = () => {
               soundEngine.playBubblePop(0.9);
               setScreen('checkin');
             }}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 mb-2 transition"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 mb-2 transition cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Check In</span>
@@ -48,7 +48,7 @@ export const GameCatalogView: React.FC = () => {
         </div>
 
         {/* Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 sm:pb-0 scrollbar-none">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 sm:pb-0 scrollbar-none touch-pan-x overscroll-contain">
           {categories.map(cat => (
             <button
               key={cat}

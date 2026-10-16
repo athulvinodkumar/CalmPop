@@ -70,12 +70,12 @@ export const GAME_CATALOG: Record<GameId, GameMetadata> = {
   'calm-keys': {
     id: 'calm-keys',
     title: 'Calm Keys',
-    tagline: 'Play peaceful pentatonic chimes where every note harmonizes',
+    tagline: 'Play peaceful harmonic bell chimes across full scales with serene resonance',
     category: 'Auditory',
     icon: 'Music',
     accentColor: '#8b5cf6', // violet
     themeGradient: 'from-violet-400/20 to-indigo-500/20',
-    instructions: 'Tap glowing keys or slide across them. Tuned to a tranquil pentatonic scale that never sounds off-key.',
+    instructions: 'Tap glowing keys or slide across them. Features full C Major (including F and B) and peaceful pentatonic scales.',
     benefits: 'Empowering musical creation without fear of mistakes, soothing auditory pathways.'
   },
   'gratitude-jar': {

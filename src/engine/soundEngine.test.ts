@@ -153,4 +153,20 @@ describe('soundEngine audio manager', () => {
       soundEngine.playChimeTest();
     }).not.toThrow();
   });
+
+  it('plays diatonic Calm Keys notes including F and B without errors', () => {
+    // Note index 3 is F4 (349.23 Hz), Note index 6 is B4 (493.88 Hz) in diatonic scale
+    expect(() => {
+      soundEngine.playCalmKeyNote(3, 'diatonic'); // F4 key
+      soundEngine.playCalmKeyNote(6, 'diatonic'); // B4 key
+      soundEngine.playCalmKeyNote(0, 'diatonic'); // C4 key
+    }).not.toThrow();
+  });
+
+  it('plays pentatonic Calm Keys notes without errors', () => {
+    expect(() => {
+      soundEngine.playPentatonicNote(0);
+      soundEngine.playPentatonicNote(3);
+    }).not.toThrow();
+  });
 });

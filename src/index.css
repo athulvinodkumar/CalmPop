@@ -43,6 +43,8 @@ html {
   color-scheme: light;
   background-color: #f8fafc;
   overflow-x: hidden;
+  scroll-behavior: smooth;
+  touch-action: pan-y;
 }
 
 html.dark {
@@ -56,12 +58,22 @@ body {
   min-height: 100dvh;
   font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--text-primary);
-  background: radial-gradient(circle at 10% 20%, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
-  background-attachment: fixed;
-  overflow-x: hidden;
-  overscroll-behavior-y: none;
+  background-color: var(--bg-gradient-start);
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hardware-composited fixed background layer for smooth 60/120fps scrolling without paint stalls */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 10% 20%, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
+  pointer-events: none;
+  z-index: -1;
+  will-change: transform;
 }
 
 /* Touch & Gesture Utilities for Mobile Calibration */

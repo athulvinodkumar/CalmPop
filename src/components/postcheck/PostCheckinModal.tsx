@@ -77,7 +77,7 @@ export const PostCheckinModal: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="w-full max-w-lg glass-panel bg-white/95 dark:bg-slate-900/95 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800"
+        className="w-full max-w-lg max-h-[88vh] max-h-[88dvh] overflow-y-auto overscroll-contain glass-panel bg-white/95 dark:bg-slate-900/95 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 touch-pan-y"
       >
         <AnimatePresence mode="wait">
           {!isSubmitted ? (

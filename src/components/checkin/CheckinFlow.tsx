@@ -139,13 +139,13 @@ export const CheckinFlow: React.FC = () => {
   const hasActiveJourney = activeJourney && activeJourney.status !== 'completed';
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12">
+    <div className="max-w-3xl mx-auto px-4 py-8 sm:py-12 touch-pan-y">
       {/* Resume Journey Banner if in-progress */}
       {hasActiveJourney && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-teal-500/15 via-emerald-500/15 to-indigo-500/15 border border-teal-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg"
+          className="mb-8 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-teal-500/15 via-emerald-500/15 to-indigo-500/15 border border-teal-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg touch-pan-y"
         >
           <div className="flex items-center gap-3 text-center sm:text-left">
             <div className="w-10 h-10 rounded-2xl bg-teal-500 text-white flex items-center justify-center shrink-0 shadow-md">
@@ -167,7 +167,7 @@ export const CheckinFlow: React.FC = () => {
                 soundEngine.playBubblePop(0.9);
                 discardJourney();
               }}
-              className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-700"
+              className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-medium hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer touch-manipulation"
             >
               Start Fresh
             </button>
@@ -176,7 +176,7 @@ export const CheckinFlow: React.FC = () => {
                 soundEngine.playSuccessChord();
                 resumeJourney();
               }}
-              className="px-4 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-md shadow-teal-600/20 flex items-center gap-1.5"
+              className="px-4 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow-md shadow-teal-600/20 flex items-center gap-1.5 cursor-pointer touch-manipulation"
             >
               <Play className="w-3.5 h-3.5 fill-current" />
               <span>Resume Journey</span>
@@ -206,7 +206,7 @@ export const CheckinFlow: React.FC = () => {
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="glass-panel bg-white/80 dark:bg-slate-900/80 rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/60 dark:border-slate-800"
+        className="glass-panel bg-white/80 dark:bg-slate-900/80 rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-200/60 dark:border-slate-800 touch-pan-y"
       >
         {/* Step 1: Pick Mood */}
         <section aria-labelledby="mood-heading" className="mb-8">
@@ -218,7 +218,7 @@ export const CheckinFlow: React.FC = () => {
           </div>
 
           <div 
-            className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3"
+            className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 touch-pan-y"
             role="radiogroup" 
             aria-label="Current Mood Selection"
           >
@@ -230,7 +230,7 @@ export const CheckinFlow: React.FC = () => {
                   role="radio"
                   aria-checked={isSelected}
                   onClick={() => handleMoodSelect(m.type)}
-                  className={`relative p-3.5 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between ${
+                  className={`relative p-3.5 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between cursor-pointer touch-manipulation ${
                     isSelected
                       ? `${m.activeColor} ring-2 ring-teal-500/40 shadow-lg ${m.glowColor} scale-[1.02]`
                       : 'border-slate-200/80 dark:border-slate-800 bg-white/50 dark:bg-slate-800/40 hover:border-slate-300 dark:hover:border-slate-700'
@@ -280,7 +280,7 @@ export const CheckinFlow: React.FC = () => {
               <span className="text-xs text-slate-400 font-medium">10 (Overloaded)</span>
             </div>
 
-            <div className="relative flex items-center">
+            <div className="relative flex items-center py-1">
               <input
                 type="range"
                 min="1"
@@ -289,7 +289,7 @@ export const CheckinFlow: React.FC = () => {
                 value={stressLevel}
                 onChange={handleStressChange}
                 aria-label="Stress level from 1 to 10"
-                className="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50"
+                className="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/50 touch-pan-x"
               />
             </div>
 
@@ -303,7 +303,7 @@ export const CheckinFlow: React.FC = () => {
                     setStressLevel(num);
                     soundEngine.playTileClick(0.8 + num * 0.08);
                   }}
-                  className={`w-5 h-5 rounded-full flex items-center justify-center transition ${
+                  className={`w-5 h-5 rounded-full flex items-center justify-center transition cursor-pointer touch-manipulation ${
                     num === stressLevel
                       ? 'bg-teal-500 text-white font-bold'
                       : 'hover:text-slate-700 dark:hover:text-slate-200'

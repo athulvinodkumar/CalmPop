@@ -27,7 +27,7 @@ export const RecommendationsView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
+    <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12 touch-pan-y">
       {/* Top Banner & Context */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>

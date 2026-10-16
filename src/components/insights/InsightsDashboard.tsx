@@ -131,7 +131,7 @@ ${journeyText}
   const timelineSessions = [...sessions].reverse().slice(-10);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 space-y-8">
+    <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 space-y-8 touch-pan-y">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

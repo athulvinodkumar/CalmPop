@@ -70,7 +70,7 @@ export const JourneySummaryView: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-6">
+    <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12 space-y-6 touch-pan-y">
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}

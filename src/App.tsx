@@ -97,7 +97,7 @@ export const App: React.FC = () => {
   }, [theme, soundEnabled, largeText]);
 
   return (
-    <div className="min-h-screen flex flex-col font-sans text-slate-800 dark:text-slate-100 transition-colors duration-200">
+    <div className="min-h-screen min-h-dvh flex flex-col font-sans text-slate-800 dark:text-slate-100 transition-colors duration-200">
       {/* Global Modals & Banners */}
       <CrisisDisclaimerModal />
       <ExplainEngineModal />
@@ -108,7 +108,7 @@ export const App: React.FC = () => {
       {/* Screen Dispatcher */}
       <Suspense
         fallback={
-          <div className="w-full min-h-screen flex flex-col items-center justify-center p-8 text-slate-400 space-y-3">
+          <div className="w-full min-h-screen min-h-dvh flex flex-col items-center justify-center p-8 text-slate-400 space-y-3">
             <div className="w-8 h-8 rounded-full border-2 border-teal-500/40 border-t-teal-500 animate-spin" />
             <p className="text-xs uppercase tracking-widest text-teal-400/80 font-medium">Entering Calm Space...</p>
           </div>
@@ -129,10 +129,10 @@ export const App: React.FC = () => {
         ) : currentScreen === 'postcheck' ? (
           <PostCheckinModal />
         ) : (
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col w-full">
             <Navbar />
 
-            <main className="flex-1">
+            <main className="flex-1 w-full">
               {currentScreen === 'journey_preview' ? (
                 <JourneyPreviewView />
               ) : currentScreen === 'journey_summary' ? (

@@ -18,6 +18,7 @@ import { GAME_CATALOG, ALL_GAME_IDS } from '../../games/catalog';
 import type { MoodType } from '../../types';
 import { soundEngine } from '../../engine/soundEngine';
 import { MOOD_PRIORS } from '../../engine/recommendationEngine';
+import { AdSlot } from '../ads/AdSlot';
 
 export const InsightsDashboard: React.FC = () => {
   const { sessions, streak, journeys } = useSessionStore();
@@ -489,6 +490,9 @@ ${journeyText}
           <span>{copiedSummary ? 'Copied!' : 'Copy Summary'}</span>
         </button>
       </section>
+
+      {/* Optional Ad Slot on Insights Screen */}
+      <AdSlot slotId="1000000002" className="mt-8" />
     </div>
   );
 };

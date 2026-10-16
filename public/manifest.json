@@ -1,17 +1,25 @@
 {
   "name": "CalmPop - Private Stress Relief",
   "short_name": "CalmPop",
-  "description": "A private, single-player stress relief app that learns which calming activity works for you.",
+  "description": "Private stress relief that learns what works for you. 100% on-device, zero tracking.",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#0f172a",
   "theme_color": "#14b8a6",
+  "categories": ["health", "lifestyle", "utilities"],
   "icons": [
     {
       "src": "/favicon.svg",
       "sizes": "192x192 512x512",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }

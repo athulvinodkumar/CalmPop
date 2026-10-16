@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, RefreshCw, Send, Calendar } from 'lucide-react';
 import { useSessionStore } from '../../store/useSessionStore';
@@ -19,6 +19,24 @@ export const GratitudeJarGame: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState('#fde047');
   const [randomEntry, setRandomEntry] = useState<GratitudeEntry | null>(null);
   const [isShaking, setIsShaking] = useState(false);
+  const [viewportBottomOffset, setViewportBottomOffset] = useState(0);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const handleResizeOrScroll = () => {
+      const offset = window.innerHeight - vv.height;
+      setViewportBottomOffset(Math.max(0, offset));
+    };
+
+    vv.addEventListener('resize', handleResizeOrScroll);
+    vv.addEventListener('scroll', handleResizeOrScroll);
+    return () => {
+      vv.removeEventListener('resize', handleResizeOrScroll);
+      vv.removeEventListener('scroll', handleResizeOrScroll);
+    };
+  }, []);
 
   const handleAddStar = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,19 +60,24 @@ export const GratitudeJarGame: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-between p-4 sm:p-6 bg-gradient-to-b from-slate-950 via-amber-950/20 to-slate-950">
+    <div
+      className="w-full h-full flex flex-col items-center justify-between p-3 sm:p-6 bg-gradient-to-b from-slate-950 via-amber-950/20 to-slate-950 overflow-y-auto"
+      style={{ paddingBottom: viewportBottomOffset > 0 ? `${viewportBottomOffset + 16}px` : undefined }}
+    >
       {/* Top Bar */}
-      <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-amber-950/40 backdrop-blur-md border border-amber-500/20 text-xs text-amber-200">
-        <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-        <span>Stars Collected: <strong className="text-white font-mono">{gratitudeEntries.length}</strong></span>
-        <span className="text-amber-500/40">•</span>
+      <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 px-3 py-2 rounded-2xl bg-amber-950/40 backdrop-blur-md border border-amber-500/20 text-xs text-amber-200">
+        <div className="flex items-center gap-1.5">
+          <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+          <span>Stars: <strong className="text-white font-mono">{gratitudeEntries.length}</strong></span>
+        </div>
+        <span className="text-amber-500/40 hidden sm:inline">•</span>
         <button
           onClick={handleShakeJar}
           disabled={isShaking || gratitudeEntries.length === 0}
-          className="flex items-center gap-1 text-amber-300 hover:text-white underline transition disabled:opacity-50"
+          className="min-h-[44px] px-3 py-1 flex items-center gap-1.5 text-amber-300 hover:text-white underline transition disabled:opacity-50 cursor-pointer active:scale-95"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isShaking ? 'animate-spin' : ''}`} />
-          <span>Shake Jar for a Past Memory</span>
+          <span>Shake Jar for Memory</span>
         </button>
       </div>
 
@@ -157,39 +180,45 @@ export const GratitudeJarGame: React.FC = () => {
 
       {/* Add Star Input Form */}
       <form onSubmit={handleAddStar} className="w-full max-w-lg space-y-3">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          {/* text-[16px] prevents iOS browser auto-zoom */}
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Add one small moment you feel grateful for today..."
             aria-label="Gratitude entry"
-            className="flex-1 px-4 py-2.5 rounded-xl bg-slate-900/80 border border-slate-700 text-white placeholder-slate-400 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="flex-1 px-4 py-3 rounded-xl bg-slate-900/80 border border-slate-700 text-white placeholder-slate-400 text-[16px] focus:outline-none focus:ring-2 focus:ring-amber-500 min-h-[48px]"
           />
           <button
             type="submit"
             disabled={!inputText.trim()}
-            className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs transition flex items-center gap-1.5 disabled:opacity-40"
+            className="min-h-[48px] px-5 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-semibold text-xs transition flex items-center justify-center gap-1.5 disabled:opacity-40 cursor-pointer shadow-md"
           >
-            <Send className="w-3.5 h-3.5" />
+            <Send className="w-4 h-4" />
             <span>Place Star</span>
           </button>
         </div>
 
-        {/* Color picker */}
-        <div className="flex items-center justify-center gap-3">
-          <span className="text-[11px] text-slate-400">Star Color:</span>
+        {/* Color picker with 44x44px touch targets */}
+        <div className="flex items-center justify-center gap-1 sm:gap-2">
+          <span className="text-[11px] text-slate-400 mr-1">Star Color:</span>
           {STAR_COLORS.map((c) => (
             <button
               key={c.hex}
               type="button"
               onClick={() => setSelectedColor(c.hex)}
-              className={`w-5 h-5 rounded-full transition-transform ${
-                selectedColor === c.hex ? 'scale-125 ring-2 ring-white' : 'opacity-70 hover:opacity-100'
-              }`}
-              style={{ backgroundColor: c.hex }}
+              className="w-11 h-11 flex items-center justify-center cursor-pointer transition-transform active:scale-90"
               title={c.name}
-            />
+              aria-label={`Select ${c.name} star color`}
+            >
+              <span
+                className={`w-6 h-6 rounded-full transition-all ${
+                  selectedColor === c.hex ? 'scale-125 ring-2 ring-white shadow-lg' : 'opacity-70 hover:opacity-100'
+                }`}
+                style={{ backgroundColor: c.hex }}
+              />
+            </button>
           ))}
         </div>
       </form>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Scissors, ShieldCheck, Sparkles, RefreshCw } from 'lucide-react';
 import { soundEngine } from '../../engine/soundEngine';
@@ -41,8 +41,32 @@ export const WorryShredderGame: React.FC = () => {
     setWorryText('');
   };
 
+  // Visual viewport keyboard handling to ensure textarea and shred button remain visible
+  const [viewportBottomOffset, setViewportBottomOffset] = useState(0);
+
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const handleResizeOrScroll = () => {
+      // Calculate how much space the virtual keyboard takes up
+      const offset = window.innerHeight - vv.height;
+      setViewportBottomOffset(Math.max(0, offset));
+    };
+
+    vv.addEventListener('resize', handleResizeOrScroll);
+    vv.addEventListener('scroll', handleResizeOrScroll);
+    return () => {
+      vv.removeEventListener('resize', handleResizeOrScroll);
+      vv.removeEventListener('scroll', handleResizeOrScroll);
+    };
+  }, []);
+
   return (
-    <div className="w-full h-full flex flex-col items-center justify-between p-4 sm:p-6 bg-gradient-to-b from-slate-950 via-rose-950/20 to-slate-950">
+    <div
+      className="w-full h-full flex flex-col items-center justify-between p-4 sm:p-6 bg-gradient-to-b from-slate-950 via-rose-950/20 to-slate-950 overflow-y-auto"
+      style={{ paddingBottom: viewportBottomOffset > 0 ? `${viewportBottomOffset + 16}px` : undefined }}
+    >
       {/* Top Counter Bar */}
       <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-rose-950/40 backdrop-blur-md border border-rose-500/20 text-xs text-rose-200">
         <Scissors className="w-4 h-4 text-rose-400" />
@@ -63,7 +87,7 @@ export const WorryShredderGame: React.FC = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full glass-panel bg-slate-900/95 text-white rounded-3xl p-6 shadow-2xl border border-slate-700/80"
+              className="w-full glass-panel bg-slate-900/95 text-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-700/80"
             >
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold uppercase tracking-wider text-rose-400">
@@ -72,25 +96,26 @@ export const WorryShredderGame: React.FC = () => {
                 <span className="text-[10px] text-slate-400">Private • In-Memory Only</span>
               </div>
 
+              {/* Font size 16px prevents iOS browser auto-zoom */}
               <textarea
                 value={worryText}
                 onChange={(e) => setWorryText(e.target.value)}
                 placeholder="What is weighing on your mind right now? Type it here freely. In the next step, you will shred it completely."
-                rows={5}
+                rows={4}
                 aria-label="Worry to shred"
-                className="w-full p-4 rounded-2xl bg-slate-800/80 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none"
+                className="w-full p-4 rounded-2xl bg-slate-800/80 border border-slate-700 text-white placeholder-slate-400 text-[16px] leading-relaxed focus:outline-none focus:ring-2 focus:ring-rose-500 resize-none"
               />
 
-              <div className="mt-4 flex items-center justify-between gap-3">
+              <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                 <p className="text-[11px] text-slate-400">
                   This text is never saved or logged.
                 </p>
                 <button
                   onClick={handleShred}
                   disabled={!worryText.trim()}
-                  className="px-6 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition shadow-md shadow-rose-600/30 flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  className="min-h-[48px] px-6 py-3 rounded-xl bg-rose-600 hover:bg-rose-500 active:scale-95 text-white font-semibold text-xs transition shadow-md shadow-rose-600/30 flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  <Scissors className="w-3.5 h-3.5" />
+                  <Scissors className="w-4 h-4" />
                   <span>Shred It Forever</span>
                 </button>
               </div>
@@ -157,7 +182,7 @@ export const WorryShredderGame: React.FC = () => {
 
               <button
                 onClick={handleReset}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-medium transition cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white text-xs font-medium transition cursor-pointer active:scale-95"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>Shred Another Worry</span>

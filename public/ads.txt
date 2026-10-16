@@ -1,0 +1,5 @@
+# CalmPop Google AdSense Authorized Digital Sellers (ads.txt)
+# Replace pub-0000000000000000 with your actual Google AdSense Publisher ID
+# when deploying with VITE_ADS_ENABLED=true
+# TODO: Update publisher ID before running production ad campaigns
+google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0

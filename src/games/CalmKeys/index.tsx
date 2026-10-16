@@ -27,6 +27,7 @@ const KEYS: KeyConfig[] = [
 export const CalmKeysGame: React.FC = () => {
   const [activeKey, setActiveKey] = useState<number | null>(null);
   const [notesPlayedCount, setNotesPlayedCount] = useState(0);
+  const lastTouchedKeyRef = useRef<number | null>(null);
   const isPointerDownRef = useRef(false);
 
   const playKey = (index: number) => {
@@ -41,18 +42,43 @@ export const CalmKeysGame: React.FC = () => {
 
   const handlePointerDown = (index: number) => {
     isPointerDownRef.current = true;
+    lastTouchedKeyRef.current = index;
     playKey(index);
   };
 
   const handlePointerEnter = (index: number) => {
-    if (isPointerDownRef.current) {
+    if (isPointerDownRef.current && lastTouchedKeyRef.current !== index) {
+      lastTouchedKeyRef.current = index;
       playKey(index);
     }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    for (let i = 0; i < e.touches.length; i++) {
+      const touch = e.touches[i];
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      const keyElem = element?.closest('[data-calm-key]');
+      if (keyElem) {
+        const keyIndexStr = keyElem.getAttribute('data-calm-key');
+        if (keyIndexStr !== null) {
+          const idx = parseInt(keyIndexStr, 10);
+          if (!isNaN(idx) && lastTouchedKeyRef.current !== idx) {
+            lastTouchedKeyRef.current = idx;
+            playKey(idx);
+          }
+        }
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    lastTouchedKeyRef.current = null;
   };
 
   useEffect(() => {
     const handleUp = () => {
       isPointerDownRef.current = false;
+      lastTouchedKeyRef.current = null;
     };
     window.addEventListener('pointerup', handleUp);
     return () => window.removeEventListener('pointerup', handleUp);
@@ -83,7 +109,7 @@ export const CalmKeysGame: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-between p-4 sm:p-6 bg-gradient-to-b from-slate-950 via-indigo-950/20 to-slate-950">
+    <div className="w-full h-full flex flex-col items-center justify-between p-3 sm:p-6 bg-gradient-to-b from-slate-950 via-indigo-950/20 to-slate-950 select-none">
       {/* Top Info Bar */}
       <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-indigo-950/40 backdrop-blur-md border border-indigo-500/20 text-xs text-indigo-200">
         <Music className="w-4 h-4 text-indigo-400" />
@@ -93,21 +119,27 @@ export const CalmKeysGame: React.FC = () => {
       </div>
 
       {/* Chime Bars Instrument Container */}
-      <div className="flex-1 w-full max-w-2xl flex items-center justify-center py-4">
-        <div className="w-full h-full max-h-96 grid grid-cols-8 gap-2 sm:gap-3 p-4 rounded-3xl bg-slate-900/60 backdrop-blur-md border border-indigo-500/20 shadow-2xl">
+      <div className="flex-1 w-full max-w-2xl flex items-center justify-center py-2 sm:py-4">
+        <div
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{ touchAction: 'none' }}
+          className="w-full h-full max-h-96 grid grid-cols-8 gap-1 sm:gap-3 p-2 sm:p-4 rounded-3xl bg-slate-900/60 backdrop-blur-md border border-indigo-500/20 shadow-2xl select-none"
+        >
           {KEYS.map((k) => {
             const isActive = activeKey === k.index;
             return (
               <button
                 key={k.index}
                 type="button"
+                data-calm-key={k.index}
                 onPointerDown={() => handlePointerDown(k.index)}
                 onPointerEnter={() => handlePointerEnter(k.index)}
                 aria-label={`Calm Key ${k.note} (${k.name})`}
-                className={`relative h-full rounded-2xl border transition-all duration-150 flex flex-col items-center justify-between p-2 sm:p-3 select-none cursor-pointer focus:outline-none ${
+                className={`relative h-full rounded-xl sm:rounded-2xl border transition-all duration-150 flex flex-col items-center justify-between py-2 sm:py-3 px-1 select-none cursor-pointer focus:outline-none touch-none ${
                   isActive
                     ? 'border-white scale-98 shadow-lg'
-                    : 'border-slate-700/60 hover:border-slate-500 bg-slate-800/40'
+                    : 'border-slate-700/60 hover:border-slate-500 bg-slate-800/40 active:bg-slate-700/60'
                 }`}
                 style={{
                   background: isActive
@@ -117,7 +149,7 @@ export const CalmKeysGame: React.FC = () => {
                 }}
               >
                 {/* Note Indicator Top */}
-                <span className="text-xs sm:text-sm font-bold text-white tracking-wide">
+                <span className="text-[11px] sm:text-sm font-bold text-white tracking-wide">
                   {k.note}
                 </span>
 
@@ -127,13 +159,13 @@ export const CalmKeysGame: React.FC = () => {
                     initial={{ scale: 0.8, opacity: 1 }}
                     animate={{ scale: 1.4, opacity: 0 }}
                     transition={{ duration: 0.4 }}
-                    className="w-8 h-8 rounded-full border border-white"
+                    className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border border-white"
                   />
                 )}
 
                 {/* Key Label Bottom */}
                 <div className="text-center">
-                  <span className="text-[10px] sm:text-xs text-slate-400 font-mono block">
+                  <span className="text-[9px] sm:text-xs text-slate-400 font-mono block">
                     {k.keyLabel}
                   </span>
                 </div>

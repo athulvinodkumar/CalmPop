@@ -76,16 +76,16 @@ export const ColorFillGame: React.FC = () => {
             soundEngine.playBubblePop(0.9);
             initGrid();
           }}
-          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
+          className="min-h-[44px] flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 transition cursor-pointer"
         >
-          <RefreshCw className="w-3 h-3" />
+          <RefreshCw className="w-3.5 h-3.5" />
           <span>Fresh Canvas</span>
         </button>
       </div>
 
-      {/* Mosaic Grid */}
-      <div className="flex-1 w-full max-w-sm flex items-center justify-center p-2">
-        <div className="grid grid-cols-5 gap-2.5 sm:gap-3 p-4 sm:p-5 rounded-3xl bg-slate-900/80 backdrop-blur-md border border-slate-700/60 shadow-2xl">
+      {/* Mosaic Grid - touch targets >= 48x48px */}
+      <div className="flex-1 w-full max-w-sm flex items-center justify-center p-1 sm:p-2">
+        <div className="grid grid-cols-5 gap-2 sm:gap-3 p-3 sm:p-5 rounded-3xl bg-slate-900/80 backdrop-blur-md border border-slate-700/60 shadow-2xl">
           {grid.map((colorIdx, idx) => {
             const tileStyle = PASTEL_PALETTE[colorIdx] || PASTEL_PALETTE[0];
             return (
@@ -95,7 +95,7 @@ export const ColorFillGame: React.FC = () => {
                 whileTap={{ scale: 0.88 }}
                 onClick={() => handleTileClick(idx)}
                 aria-label={`Mosaic Tile ${idx + 1}, color ${tileStyle.name}`}
-                className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl sm:rounded-2xl transition-colors duration-200 cursor-pointer shadow-sm focus:outline-none"
+                className="w-12 h-12 min-w-[48px] min-h-[48px] sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl transition-colors duration-200 cursor-pointer shadow-sm focus:outline-none active:scale-95 touch-manipulation"
                 style={{
                   backgroundColor: tileStyle.bg,
                   border: `2px solid ${tileStyle.border}`,

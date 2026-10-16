@@ -1,0 +1,5 @@
+# Robots.txt for CalmPop
+User-agent: *
+Allow: /
+
+Sitemap: https://calmpop.app/sitemap.xml

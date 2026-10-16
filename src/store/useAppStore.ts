@@ -2,10 +2,12 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { GameId, MoodType, ActiveJourney, JourneyRecord } from '../types';
 import { JourneyEngine } from '../engine/journeyEngine';
+import { soundEngine } from '../engine/soundEngine';
 import { useSessionStore } from './useSessionStore';
 
 export type ScreenType = 
   | 'onboarding'
+  | 'landing'
   | 'checkin'
   | 'recommendations'
   | 'journey_preview'
@@ -13,9 +15,12 @@ export type ScreenType =
   | 'game'
   | 'postcheck'
   | 'insights'
-  | 'catalog';
+  | 'catalog'
+  | 'privacy'
+  | 'terms';
 
 export type ThemeType = 'light' | 'dark' | 'system';
+export type AdConsentType = 'granted' | 'denied' | 'non_personalized' | null;
 
 interface AppState {
   // Navigation & Screen
@@ -28,6 +33,7 @@ interface AppState {
   soundVolume: number;
   largeText: boolean;
   reducedMotion: boolean;
+  adConsent: AdConsentType;
 
   // Active Flow State
   currentMood: MoodType | null;
@@ -54,6 +60,7 @@ interface AppState {
   setSoundVolume: (vol: number) => void;
   setLargeText: (enabled: boolean) => void;
   setReducedMotion: (enabled: boolean) => void;
+  setAdConsent: (consent: AdConsentType) => void;
   
   startCheckIn: (mood: MoodType, stress: number) => void;
   launchGame: (gameId: GameId) => void;
@@ -117,9 +124,10 @@ export const useAppStore = create<AppState>()(
       hasCompletedOnboarding: false,
       theme: 'system',
       soundEnabled: true,
-      soundVolume: 0.7,
+      soundVolume: soundEngine.getVolume(),
       largeText: false,
       reducedMotion: false,
+      adConsent: null,
 
       currentMood: null,
       stressBefore: 5,
@@ -138,10 +146,17 @@ export const useAppStore = create<AppState>()(
       setScreen: (screen) => set({ currentScreen: screen }),
       completeOnboarding: () => set({ hasCompletedOnboarding: true, currentScreen: 'checkin' }),
       setTheme: (theme) => set({ theme }),
-      setSoundEnabled: (soundEnabled) => set({ soundEnabled }),
-      setSoundVolume: (soundVolume) => set({ soundVolume }),
+      setSoundEnabled: (soundEnabled) => {
+        set({ soundEnabled });
+        soundEngine.setMuted(!soundEnabled);
+      },
+      setSoundVolume: (soundVolume) => {
+        set({ soundVolume });
+        soundEngine.setVolume(soundVolume);
+      },
       setLargeText: (largeText) => set({ largeText }),
       setReducedMotion: (reducedMotion) => set({ reducedMotion }),
+      setAdConsent: (adConsent) => set({ adConsent }),
 
       startCheckIn: (mood, stress) => set({
         currentMood: mood,
@@ -433,6 +448,7 @@ export const useAppStore = create<AppState>()(
         soundVolume: state.soundVolume,
         largeText: state.largeText,
         reducedMotion: state.reducedMotion,
+        adConsent: state.adConsent,
         activeJourney: state.activeJourney,
         journeyLength: state.journeyLength
       }),

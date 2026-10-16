@@ -9,9 +9,20 @@ export const BreathingGame: React.FC = () => {
   const [phase, setPhase] = useState<BreathPhase>('inhale');
   const [timerCount, setTimerCount] = useState<number>(4);
   const [cyclesCompleted, setCyclesCompleted] = useState<number>(0);
+  const [isTabVisible, setIsTabVisible] = useState(!document.hidden);
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      setIsTabVisible(!document.hidden);
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
 
   // Inhale: 4s, Hold: 1.5s, Exhale: 6s
   useEffect(() => {
+    if (!isTabVisible) return;
+
     let timeout: ReturnType<typeof setTimeout>;
 
     if (phase === 'inhale') {
@@ -54,7 +65,7 @@ export const BreathingGame: React.FC = () => {
         clearTimeout(timeout);
       };
     }
-  }, [phase]);
+  }, [phase, isTabVisible]);
 
   const getCue = () => {
     switch (phase) {
@@ -103,7 +114,7 @@ export const BreathingGame: React.FC = () => {
             duration: phase === 'inhale' ? 4 : phase === 'hold' ? 1.5 : 6,
             ease: phase === 'inhale' ? 'easeInOut' : 'easeOut'
           }}
-          className="absolute w-72 h-72 sm:w-80 sm:h-80 rounded-full bg-teal-400/20 blur-2xl pointer-events-none"
+          className="absolute w-56 h-56 sm:w-72 sm:h-72 rounded-full bg-teal-400/20 blur-2xl pointer-events-none"
         />
 
         <motion.div
@@ -115,13 +126,13 @@ export const BreathingGame: React.FC = () => {
             duration: phase === 'inhale' ? 4 : phase === 'hold' ? 1.5 : 6,
             ease: phase === 'inhale' ? 'easeInOut' : 'easeOut'
           }}
-          className="absolute w-60 h-60 sm:w-68 sm:h-68 rounded-full bg-emerald-400/20 blur-xl pointer-events-none"
+          className="absolute w-44 h-44 sm:w-60 sm:h-60 rounded-full bg-emerald-400/20 blur-xl pointer-events-none"
         />
 
         {/* Central Breathing Orb */}
         <motion.div
           animate={{
-            scale: phase === 'inhale' ? 1.25 : phase === 'hold' ? 1.25 : 0.8,
+            scale: phase === 'inhale' ? 1.2 : phase === 'hold' ? 1.2 : 0.82,
             boxShadow: phase === 'inhale'
               ? '0 0 50px rgba(20, 184, 166, 0.5)'
               : phase === 'hold'
@@ -132,16 +143,16 @@ export const BreathingGame: React.FC = () => {
             duration: phase === 'inhale' ? 4 : phase === 'hold' ? 1.5 : 6,
             ease: 'easeInOut'
           }}
-          className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-full flex flex-col items-center justify-center bg-gradient-to-tr from-teal-500/40 via-emerald-400/30 to-sky-300/40 backdrop-blur-xl border border-teal-300/40"
+          className="relative w-36 h-36 sm:w-52 sm:h-52 rounded-full flex flex-col items-center justify-center bg-gradient-to-tr from-teal-500/40 via-emerald-400/30 to-sky-300/40 backdrop-blur-xl border border-teal-300/40"
         >
           {/* Internal ripple wave */}
-          <div className="absolute inset-4 rounded-full border border-white/20 animate-pulse" />
+          <div className="absolute inset-3 sm:inset-4 rounded-full border border-white/20 animate-pulse" />
 
           {/* Seconds countdown */}
-          <span className="text-4xl sm:text-5xl font-black text-white font-mono tracking-tighter drop-shadow-md">
+          <span className="text-3xl sm:text-5xl font-black text-white font-mono tracking-tighter drop-shadow-md">
             {timerCount}s
           </span>
-          <span className="text-[11px] uppercase tracking-widest text-teal-200/90 font-bold mt-1">
+          <span className="text-[10px] sm:text-[11px] uppercase tracking-widest text-teal-200/90 font-bold mt-1">
             {phase}
           </span>
         </motion.div>

@@ -26,7 +26,7 @@ export const BubblePopGame: React.FC = () => {
   const [isRefilling, setIsRefilling] = useState(false);
   const [bursts, setBursts] = useState<ParticleBurst[]>([]);
 
-  const isPointerDownRef = useRef(false);
+  const activePointersRef = useRef(new Set<number>());
   const comboCountRef = useRef(0);
   const comboTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -92,19 +92,19 @@ export const BubblePopGame: React.FC = () => {
   }, [initSheet]);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>, index: number) => {
-    isPointerDownRef.current = true;
+    activePointersRef.current.add(e.pointerId);
     triggerBubblePop(index, e.clientX, e.clientY);
   };
 
   const handlePointerEnter = (e: React.PointerEvent<HTMLButtonElement>, index: number) => {
-    if (isPointerDownRef.current) {
+    if (activePointersRef.current.size > 0) {
       triggerBubblePop(index, e.clientX, e.clientY);
     }
   };
 
   useEffect(() => {
-    const handleUp = () => {
-      isPointerDownRef.current = false;
+    const handleUp = (e: PointerEvent) => {
+      activePointersRef.current.delete(e.pointerId);
     };
     window.addEventListener('pointerup', handleUp);
     window.addEventListener('pointercancel', handleUp);
@@ -117,7 +117,7 @@ export const BubblePopGame: React.FC = () => {
   const poppedInSheet = bubbles.filter((b) => b.popped).length;
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-between p-3 sm:p-5 bg-gradient-to-b from-slate-950 via-slate-900 to-sky-950/40 select-none overflow-hidden touch-none">
+    <div className="w-full h-full flex flex-col items-center justify-between p-2 sm:p-5 bg-gradient-to-b from-slate-950 via-slate-900 to-sky-950/40 select-none overflow-hidden touch-none game-surface">
       {/* Particle Bursts Layer */}
       <div className="fixed inset-0 pointer-events-none z-30 overflow-hidden">
         {bursts.map((burst) => (

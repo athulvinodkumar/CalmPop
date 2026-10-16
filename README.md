@@ -110,11 +110,25 @@ The built-in **"Explain My Recommendation"** sheet displays the exact mathematic
 
 ## 🛡️ Privacy & Offline Architecture
 
-- **Zero Cloud Network Calls:** CalmPop operates 100% offline. No telemetry, no Google Analytics, no third-party CDNs.
-- **Strict In-Memory Worry Shredder:** The Worry Shredder tears text in memory and wipes state immediately. It is never written to storage or logs.
+- **Default Build (Zero Network Requests):** In the default release build, CalmPop operates 100% locally on-device. No telemetry, no third-party CDNs, and zero external network requests are made.
+- **Strict In-Memory Worry Shredder:** The Worry Shredder tears text in volatile JavaScript memory and wipes state immediately upon shredding. It is never written to storage, IndexedDB, or server logs.
 - **Data Portability:** Complete export and import of backup files as `.json`.
-- **Nuclear Delete Option:** Visible *"Delete All My Data"* button with two-step confirmation.
+- **Nuclear Delete Option:** Visible *"Delete All My Data"* button with two-step confirmation in Settings.
 - **Wellbeing Support:** Prominent *"Not Medical Advice"* guidance with immediate links to 24/7 free crisis helplines (988, findahelpline.com).
+
+---
+
+## 💰 Monetization (Optional)
+
+CalmPop includes an optional, flag-controlled monetization integration for Google AdSense (`VITE_ADS_ENABLED=true` and `VITE_ADSENSE_CLIENT_ID`).
+
+- **Disabled by default:** When the flag is false (the default shipped state), the ad code is completely inactive or tree-shaken, making zero network calls.
+- **Consent-Gated (Consent Mode v2):** When enabled, an interactive CMP consent banner loads before any ad scripts. Users can choose "Accept All", "Non-Personalized Only", or "Reject All", and adjust this at any time in Settings.
+- **Calm-First Placement Rules:**
+  - Ads are **NEVER** displayed during game sessions, Breath Bloom exercises, tension check-ins, the Worry Shredder, or crisis helpline views.
+  - Allowed only on the Insights dashboard and Landing page, strictly limited to 1 responsive banner per screen with fixed min-height to prevent layout shifts (CLS).
+  - Mood scores and mental wellness data are strictly partitioned on-device and never shared with advertising partners.
+- **Offline & Graceful Collapse:** If offline, blocked by ad blockers, or if the request fails, ad slots collapse seamlessly without layout shifts or console errors.
 
 ---
 

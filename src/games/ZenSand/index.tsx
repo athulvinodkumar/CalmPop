@@ -76,25 +76,71 @@ export const ZenSandGame: React.FC = () => {
     const parent = canvas.parentElement;
     if (!parent) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = parent.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    if (rect.width === 0 || rect.height === 0) return;
 
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.scale(dpr, dpr);
-      drawBaseSand(ctx, rect.width, rect.height);
+    const newWidth = Math.floor(rect.width * dpr);
+    const newHeight = Math.floor(rect.height * dpr);
+
+    // If canvas already has content, save it so we resize without losing state
+    if (canvas.width > 0 && canvas.height > 0) {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      const tempCtx = tempCanvas.getContext('2d');
+      if (tempCtx) {
+        tempCtx.drawImage(canvas, 0, 0);
+      }
+
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, newWidth, newHeight);
+      }
+    } else {
+      // First initialization: draw fresh sand
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.scale(dpr, dpr);
+        drawBaseSand(ctx, rect.width, rect.height);
+      }
     }
   }, [drawBaseSand]);
 
   useEffect(() => {
     initCanvas();
+
+    const canvas = canvasRef.current;
+    const parent = canvas?.parentElement;
+    let observer: ResizeObserver | null = null;
+
+    if (parent && typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(() => {
+        initCanvas();
+      });
+      observer.observe(parent);
+    }
+
+    const handleOrientation = () => {
+      setTimeout(initCanvas, 100);
+    };
+
+    window.addEventListener('orientationchange', handleOrientation);
     window.addEventListener('resize', initCanvas);
-    return () => window.removeEventListener('resize', initCanvas);
+
+    return () => {
+      if (observer) observer.disconnect();
+      window.removeEventListener('orientationchange', handleOrientation);
+      window.removeEventListener('resize', initCanvas);
+    };
   }, [initCanvas]);
 
-  // Draw 3-tine rake lines
+  // Draw 3-tine rake lines scaled relative to canvas width
   const drawRake = (from: Point, to: Point) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -106,12 +152,19 @@ export const ZenSandGame: React.FC = () => {
     const len = Math.hypot(dx, dy);
     if (len < 1) return;
 
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
     // Perpendicular vector for 3 tines
     const px = -dy / len;
     const py = dx / len;
-    const tineSpacing = 10;
+    // Scale tine spacing relative to screen width (9px - 18px)
+    const tineSpacing = Math.max(9, Math.min(18, rect.width * 0.025));
 
     const offsets = [-tineSpacing, 0, tineSpacing];
+
+    ctx.save();
+    ctx.scale(dpr, dpr);
 
     offsets.forEach((offset) => {
       const x1 = from.x + px * offset;
@@ -124,7 +177,7 @@ export const ZenSandGame: React.FC = () => {
       ctx.moveTo(x1 + 1.5, y1 + 1.5);
       ctx.lineTo(x2 + 1.5, y2 + 1.5);
       ctx.strokeStyle = 'rgba(80, 50, 20, 0.22)';
-      ctx.lineWidth = 4;
+      ctx.lineWidth = Math.max(3, tineSpacing * 0.35);
       ctx.lineCap = 'round';
       ctx.stroke();
 
@@ -133,10 +186,12 @@ export const ZenSandGame: React.FC = () => {
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
       ctx.strokeStyle = 'rgba(255, 245, 225, 0.4)';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = Math.max(2.5, tineSpacing * 0.25);
       ctx.lineCap = 'round';
       ctx.stroke();
     });
+
+    ctx.restore();
 
     // Sound effect with throttle
     const now = Date.now();

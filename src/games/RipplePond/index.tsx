@@ -28,13 +28,13 @@ export const RipplePondGame: React.FC = () => {
   const lastDropTimeRef = useRef(0);
   const [softRainActive, setSoftRainActive] = useState(false);
 
-  // Initialize lily pads
+  // Initialize lily pads scaled to canvas dimensions
   const initPond = useCallback((width: number, height: number) => {
     lilyPadsRef.current = [
-      { x: width * 0.22, y: height * 0.35, size: 45, rotation: 0.4 },
-      { x: width * 0.78, y: height * 0.65, size: 55, rotation: 1.2 },
-      { x: width * 0.35, y: height * 0.75, size: 38, rotation: 2.1 },
-      { x: width * 0.72, y: height * 0.28, size: 42, rotation: 3.5 }
+      { x: width * 0.22, y: height * 0.35, size: Math.max(30, width * 0.08), rotation: 0.4 },
+      { x: width * 0.78, y: height * 0.65, size: Math.max(36, width * 0.095), rotation: 1.2 },
+      { x: width * 0.35, y: height * 0.75, size: Math.max(26, width * 0.07), rotation: 2.1 },
+      { x: width * 0.72, y: height * 0.28, size: Math.max(28, width * 0.075), rotation: 3.5 }
     ];
   }, []);
 
@@ -46,66 +46,105 @@ export const RipplePondGame: React.FC = () => {
     const colors = ['rgba(56, 189, 248, ', 'rgba(20, 184, 166, ', 'rgba(99, 102, 241, '];
     const color = colors[Math.floor(Math.random() * colors.length)];
 
+    const canvas = canvasRef.current;
+    const width = canvas ? canvas.clientWidth : 400;
+
     ripplesRef.current.push({
       x,
       y,
       radius: 0,
-      maxRadius: isAuto ? 120 + Math.random() * 80 : 160 + Math.random() * 100,
-      alpha: 0.8,
+      maxRadius: isAuto ? Math.max(80, width * 0.22) : Math.max(110, width * 0.32),
+      alpha: 0.85,
       speed: 2.2 + Math.random() * 0.8,
       color
     });
   }, []);
 
-  // Main 60fps render loop
+  // Main 60fps render loop with ResizeObserver & visibility pause
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const parent = canvas.parentElement;
     if (!parent) return;
 
-    const dpr = window.devicePixelRatio || 1;
-    const rect = parent.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    let width = parent.clientWidth || 300;
+    let height = parent.clientHeight || 400;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.scale(dpr, dpr);
-    initPond(rect.width, rect.height);
+    const setupCanvas = () => {
+      const p = canvas.parentElement;
+      if (!p) return;
+      const rect = p.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = rect.width;
+      height = rect.height;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
+
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.scale(dpr, dpr);
+      }
+      initPond(width, height);
+    };
+
+    setupCanvas();
+
+    let observer: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(() => setupCanvas());
+      observer.observe(parent);
+    }
+
+    const handleOrientation = () => {
+      setTimeout(setupCanvas, 100);
+    };
+    window.addEventListener('orientationchange', handleOrientation);
 
     let lastRainTime = Date.now();
 
     const render = () => {
+      if (document.hidden) {
+        return; // Paused while tab is hidden
+      }
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
       // 1. Water background gradient
       const grad = ctx.createRadialGradient(
-        rect.width / 2, rect.height / 2, 20,
-        rect.width / 2, rect.height / 2, Math.max(rect.width, rect.height)
+        width / 2, height / 2, 20,
+        width / 2, height / 2, Math.max(width, height)
       );
       grad.addColorStop(0, '#0c2333');
       grad.addColorStop(0.6, '#071624');
       grad.addColorStop(1, '#030a12');
       ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, rect.width, rect.height);
+      ctx.fillRect(0, 0, width, height);
 
       // 2. Soft Rain trigger
       if (softRainActive) {
         const now = Date.now();
         if (now - lastRainTime > 800) {
           addRipple(
-            Math.random() * rect.width,
-            Math.random() * rect.height,
+            Math.random() * width,
+            Math.random() * height,
             true
           );
           lastRainTime = now;
         }
       }
 
-      // 3. Render and update expanding ripples
+      // 3. Render and update expanding ripples (cap at 24 ripples to keep 60fps on mobile)
+      if (ripplesRef.current.length > 24) {
+        ripplesRef.current.splice(0, ripplesRef.current.length - 24);
+      }
+
       for (let i = ripplesRef.current.length - 1; i >= 0; i--) {
         const r = ripplesRef.current[i];
         r.radius += r.speed;
-        r.alpha = Math.max(0, 0.8 * (1 - r.radius / r.maxRadius));
+        r.alpha = Math.max(0, 0.85 * (1 - r.radius / r.maxRadius));
 
         if (r.alpha <= 0.01 || r.radius >= r.maxRadius) {
           ripplesRef.current.splice(i, 1);
@@ -165,8 +204,18 @@ export const RipplePondGame: React.FC = () => {
 
     animIdRef.current = requestAnimationFrame(render);
 
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        animIdRef.current = requestAnimationFrame(render);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     return () => {
       if (animIdRef.current) cancelAnimationFrame(animIdRef.current);
+      if (observer) observer.disconnect();
+      window.removeEventListener('orientationchange', handleOrientation);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [addRipple, initPond, softRainActive]);
 
@@ -209,7 +258,7 @@ export const RipplePondGame: React.FC = () => {
             soundEngine.playBubblePop(1.1);
             setSoftRainActive((prev) => !prev);
           }}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition ${
+          className={`min-h-[44px] flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition cursor-pointer ${
             softRainActive
               ? 'bg-cyan-500 text-white border-cyan-400 shadow-md shadow-cyan-500/30'
               : 'bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-200 border-cyan-500/30'
@@ -228,7 +277,7 @@ export const RipplePondGame: React.FC = () => {
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerUp}
-          className="w-full h-full cursor-pointer touch-none select-none block"
+          className="w-full h-full cursor-pointer touch-none select-none block game-surface"
         />
       </div>
 

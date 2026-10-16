@@ -44,22 +44,78 @@ export const MandalaGame: React.FC = () => {
     const parent = canvas.parentElement;
     if (!parent) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const rect = parent.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    if (rect.width === 0 || rect.height === 0) return;
+
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
 
     ctx.scale(dpr, dpr);
     ctx.fillStyle = '#0f0a1c';
     ctx.fillRect(0, 0, rect.width, rect.height);
-    drawRadialGuides(ctx, rect.width / 2, rect.height / 2, Math.min(rect.width, rect.height) * 0.45);
+    drawRadialGuides(ctx, rect.width / 2, rect.height / 2, Math.min(rect.width, rect.height) * 0.44);
   }, [drawRadialGuides]);
 
-  useEffect(() => {
-    clearCanvas();
-    window.addEventListener('resize', clearCanvas);
-    return () => window.removeEventListener('resize', clearCanvas);
+  const handleResize = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const parent = canvas.parentElement;
+    if (!parent) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = parent.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    const newWidth = Math.floor(rect.width * dpr);
+    const newHeight = Math.floor(rect.height * dpr);
+
+    if (canvas.width > 0 && canvas.height > 0) {
+      const temp = document.createElement('canvas');
+      temp.width = canvas.width;
+      temp.height = canvas.height;
+      const tCtx = temp.getContext('2d');
+      if (tCtx) tCtx.drawImage(canvas, 0, 0);
+
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(temp, 0, 0, temp.width, temp.height, 0, 0, newWidth, newHeight);
+      }
+    } else {
+      clearCanvas();
+    }
   }, [clearCanvas]);
+
+  useEffect(() => {
+    handleResize();
+
+    const canvas = canvasRef.current;
+    const parent = canvas?.parentElement;
+    let observer: ResizeObserver | null = null;
+
+    if (parent && typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(() => {
+        handleResize();
+      });
+      observer.observe(parent);
+    }
+
+    const handleOrientation = () => {
+      setTimeout(handleResize, 100);
+    };
+
+    window.addEventListener('orientationchange', handleOrientation);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      if (observer) observer.disconnect();
+      window.removeEventListener('orientationchange', handleOrientation);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [handleResize]);
 
   const drawSymmetricLine = (from: Point, to: Point) => {
     const canvas = canvasRef.current;

@@ -91,32 +91,84 @@ export const StarCatcherGame: React.FC = () => {
     const parent = canvas.parentElement;
     if (!parent) return;
 
-    const dpr = window.devicePixelRatio || 1;
-    const rect = parent.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    let width = parent.clientWidth || 300;
+    let height = parent.clientHeight || 400;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.scale(dpr, dpr);
+    const setupCanvas = () => {
+      const p = canvas.parentElement;
+      if (!p) return;
+      const rect = p.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
 
-    // Initial stars
-    starsRef.current = Array.from({ length: 9 }, () => spawnStar(rect.width, false));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = rect.width;
+      height = rect.height;
+      canvas.width = Math.floor(width * dpr);
+      canvas.height = Math.floor(height * dpr);
 
-    const render = () => {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.scale(dpr, dpr);
+      }
+
+      // Initialize stars if empty or adjust star positions
+      if (starsRef.current.length === 0) {
+        const starRadius = Math.max(8, Math.min(18, width * 0.025));
+        starsRef.current = Array.from({ length: 9 }, () => {
+          const s = spawnStar(width, false);
+          s.radius = starRadius;
+          return s;
+        });
+      }
+    };
+
+    setupCanvas();
+
+    let observer: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver(() => setupCanvas());
+      observer.observe(parent);
+    }
+
+    const handleOrientation = () => {
+      setTimeout(setupCanvas, 100);
+    };
+    window.addEventListener('orientationchange', handleOrientation);
+
+    let lastFrameTime = performance.now();
+
+    const render = (now: number) => {
+      if (document.hidden) {
+        // Paused while tab is hidden
+        return;
+      }
+
+      const frameDelta = now - lastFrameTime;
+      lastFrameTime = now;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Frame time check: If device is lagging (>24ms per frame, < 42fps), cap particle count
+      const isSlowDevice = frameDelta > 24;
+      const maxParticles = isSlowDevice ? 20 : 60;
+      if (particlesRef.current.length > maxParticles) {
+        particlesRef.current.splice(0, particlesRef.current.length - maxParticles);
+      }
+
       // Twilight Sky Gradient
-      const grad = ctx.createLinearGradient(0, 0, 0, rect.height);
+      const grad = ctx.createLinearGradient(0, 0, 0, height);
       grad.addColorStop(0, '#090d16');
       grad.addColorStop(0.5, '#0f172a');
       grad.addColorStop(1, '#1e1b4b');
       ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, rect.width, rect.height);
+      ctx.fillRect(0, 0, width, height);
 
       // Distant micro twinkling stars
       ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
       for (let i = 0; i < 25; i++) {
-        const sx = ((i * 73) % rect.width);
-        const sy = ((i * 137) % rect.height);
+        const sx = ((i * 73) % width);
+        const sy = ((i * 137) % height);
         ctx.fillRect(sx, sy, 1.5, 1.5);
       }
 
@@ -126,9 +178,9 @@ export const StarCatcherGame: React.FC = () => {
         star.pulsePhase += 0.03;
 
         // If falls past bottom, loop to top
-        if (star.y > rect.height + 30) {
+        if (star.y > height + 30) {
           star.y = -20;
-          star.x = 30 + Math.random() * (rect.width - 60);
+          star.x = 30 + Math.random() * (width - 60);
         }
 
         // Draw star aura glow
@@ -161,7 +213,7 @@ export const StarCatcherGame: React.FC = () => {
         p.x += p.vx;
         p.y += p.vy;
         p.vy += 0.05; // soft gravity
-        p.alpha -= 0.02;
+        p.alpha -= 0.022;
 
         if (p.alpha <= 0) {
           particlesRef.current.splice(i, 1);
@@ -181,8 +233,19 @@ export const StarCatcherGame: React.FC = () => {
 
     animIdRef.current = requestAnimationFrame(render);
 
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        lastFrameTime = performance.now();
+        animIdRef.current = requestAnimationFrame(render);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     return () => {
       if (animIdRef.current) cancelAnimationFrame(animIdRef.current);
+      if (observer) observer.disconnect();
+      window.removeEventListener('orientationchange', handleOrientation);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, []);
 

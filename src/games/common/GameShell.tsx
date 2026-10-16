@@ -35,10 +35,37 @@ export const GameShell: React.FC<GameShellProps> = ({ children }) => {
 
   useEffect(() => {
     setSecondsElapsed(0);
-    const timer = setInterval(() => {
-      setSecondsElapsed((prev) => prev + 1);
-    }, 1000);
-    return () => clearInterval(timer);
+    let timer: ReturnType<typeof setInterval> | null = null;
+
+    const startTimer = () => {
+      if (!timer) {
+        timer = setInterval(() => {
+          if (typeof document !== 'undefined' && !document.hidden) {
+            setSecondsElapsed((prev) => prev + 1);
+          }
+        }, 1000);
+      }
+    };
+
+    startTimer();
+
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (timer) {
+          clearInterval(timer);
+          timer = null;
+        }
+      } else {
+        startTimer();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      if (timer) clearInterval(timer);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, [activeGameId]);
 
   if (!activeGameId) return null;
@@ -94,21 +121,21 @@ export const GameShell: React.FC<GameShellProps> = ({ children }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-slate-950 text-slate-100 select-none overflow-hidden touch-none">
+    <div className="fixed inset-0 z-50 flex flex-col bg-slate-950 text-slate-100 select-none overflow-hidden touch-none game-surface min-h-screen min-h-dvh h-screen h-dvh overscroll-none">
       {/* Level Intermission Sheet if active */}
       {activeJourney && activeJourney.status === 'intermission' && (
         <LevelIntermissionModal key={`journey-intermission-${activeJourney.currentLevelIndex}`} />
       )}
 
       {/* Top Distraction-Free Bar */}
-      <header className="h-16 px-4 sm:px-6 flex items-center justify-between bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 z-20">
+      <header className="min-h-16 pt-[env(safe-area-inset-top,0px)] px-3 sm:px-6 flex items-center justify-between bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 z-20 shrink-0">
         {/* Left: Back / Title / Journey Level Step Dots */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={handleCancel}
             aria-label="Exit Game"
             title="Exit game"
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="w-12 h-12 min-w-[48px] min-h-[48px] flex items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -118,7 +145,7 @@ export const GameShell: React.FC<GameShellProps> = ({ children }) => {
                 {game.title}
               </h1>
               
-              {/* Journey Mode Level Indicator: e.g. "Level 2 of 3" with step dots */}
+              {/* Journey Mode Level Indicator */}
               {activeJourney ? (
                 <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-teal-950/80 border border-teal-500/30 text-teal-300 text-xs font-semibold font-mono">
                   <span>Level {activeJourney.currentLevelIndex + 1} of {activeJourney.levels.length}</span>
@@ -156,12 +183,12 @@ export const GameShell: React.FC<GameShellProps> = ({ children }) => {
         </div>
 
         {/* Right: Sound & I'm Done Button with 20s Soft Countdown Ring */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
           <button
             onClick={toggleSound}
             aria-label={soundEnabled ? 'Mute Sound' : 'Unmute Sound'}
             title={soundEnabled ? 'Mute Sound' : 'Unmute Sound'}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            className="w-12 h-12 min-w-[48px] min-h-[48px] flex items-center justify-center rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
           >
             {soundEnabled ? (
               <Volume2 className="w-5 h-5 text-teal-400" />
@@ -175,7 +202,7 @@ export const GameShell: React.FC<GameShellProps> = ({ children }) => {
             <button
               onClick={handleFinishClick}
               aria-label={isMinTimeMet ? "I'm done with this level" : `Calm time: ${remainingSeconds}s remaining`}
-              className={`flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 ${
+              className={`min-h-[48px] flex items-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 ${
                 isMinTimeMet
                   ? 'bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white shadow-md shadow-teal-500/25 active:scale-95 cursor-pointer'
                   : 'bg-slate-800/90 text-slate-300 border border-slate-700/60 hover:border-slate-600 cursor-pointer'
@@ -189,7 +216,7 @@ export const GameShell: React.FC<GameShellProps> = ({ children }) => {
               ) : (
                 <>
                   {/* Soft SVG Countdown Ring */}
-                  <svg className="w-4 h-4 transform -rotate-90" viewBox="0 0 20 20">
+                  <svg className="w-4 h-4 transform -rotate-90 shrink-0" viewBox="0 0 20 20">
                     <circle
                       cx="10"
                       cy="10"
@@ -217,7 +244,7 @@ export const GameShell: React.FC<GameShellProps> = ({ children }) => {
 
             {/* Premature click gentle cue */}
             {showPrematureCue && !isMinTimeMet && (
-              <div className="absolute right-0 top-12 w-56 p-2.5 rounded-xl bg-slate-900 border border-teal-500/40 text-[11px] text-teal-300 shadow-xl text-center z-30 animate-fade-in space-y-0.5">
+              <div className="absolute right-0 top-14 w-56 p-2.5 rounded-xl bg-slate-900 border border-teal-500/40 text-[11px] text-teal-300 shadow-xl text-center z-30 animate-fade-in space-y-0.5">
                 <p className="font-semibold">A moment of calm focus...</p>
                 <p className="text-[10px] text-slate-400">
                   Tailored for {currentMoodType || 'your mood'} ({minPlaySeconds}s calm reset, {remainingSeconds}s left)
@@ -229,7 +256,7 @@ export const GameShell: React.FC<GameShellProps> = ({ children }) => {
       </header>
 
       {/* Main Game Stage */}
-      <main className="flex-1 relative w-full h-[calc(100vh-4rem)] overflow-hidden">
+      <main className="flex-1 relative w-full h-[calc(100vh-4rem)] h-[calc(100dvh-4rem)] overflow-hidden pb-[env(safe-area-inset-bottom,0px)]">
         {children}
       </main>
     </div>

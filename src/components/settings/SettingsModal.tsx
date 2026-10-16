@@ -13,7 +13,9 @@ import {
   Trash2, 
   ShieldCheck, 
   Type, 
-  AlertTriangle 
+  AlertTriangle,
+  Music,
+  Sparkles
 } from 'lucide-react';
 import { useAppStore } from '../../store/useAppStore';
 import type { ThemeType } from '../../store/useAppStore';
@@ -28,10 +30,14 @@ export const SettingsModal: React.FC = () => {
     setTheme,
     soundEnabled,
     setSoundEnabled,
+    soundVolume,
+    setSoundVolume,
     largeText,
     setLargeText,
     reducedMotion,
     setReducedMotion,
+    adConsent,
+    setAdConsent,
     resetAllAppState
   } = useAppStore();
 
@@ -232,6 +238,47 @@ export const SettingsModal: React.FC = () => {
                 />
               </div>
 
+              {/* Master Volume Slider & Sound Test */}
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-900 dark:text-white">Master Sound Volume</span>
+                  <span className="font-mono text-teal-600 dark:text-teal-400 font-bold">{Math.round(soundVolume * 100)}%</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <VolumeX className="w-4 h-4 text-slate-400 shrink-0" />
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={soundVolume}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      setSoundVolume(val);
+                    }}
+                    disabled={!soundEnabled}
+                    aria-label="Sound volume slider"
+                    className="w-full accent-teal-500 cursor-pointer h-2 bg-slate-200 dark:bg-slate-700 rounded-lg disabled:opacity-40"
+                  />
+                  <Volume2 className="w-4 h-4 text-teal-500 shrink-0" />
+                </div>
+                <div className="pt-1 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400">Normalized for phone & headphone safety</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundEngine.unlock();
+                      soundEngine.playChimeTest();
+                    }}
+                    disabled={!soundEnabled}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-teal-50 dark:bg-teal-950/60 border border-teal-200 dark:border-teal-800/60 text-teal-700 dark:text-teal-300 text-xs font-semibold hover:bg-teal-100 dark:hover:bg-teal-900/60 transition disabled:opacity-40 cursor-pointer"
+                  >
+                    <Music className="w-3.5 h-3.5" />
+                    <span>Sound Test</span>
+                  </button>
+                </div>
+              </div>
+
               {/* Large Text Mode */}
               <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2.5">
@@ -296,6 +343,43 @@ export const SettingsModal: React.FC = () => {
                   {importStatus}
                 </p>
               )}
+            </section>
+
+            {/* Ad-Free Experience & Transparency */}
+            <section aria-labelledby="monetization-section" className="space-y-3">
+              <h3 id="monetization-section" className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                Monetization & Ad-Free Experience
+              </h3>
+
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-teal-500" />
+                    <span className="font-semibold text-slate-900 dark:text-white">100% Ad-Free Core</span>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300">
+                    Always Active
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                  CalmPop makes zero third-party network calls by default and never serves ads during games, breathing exercises, or check-ins. If optional sponsored banners are configured, they are strictly consent-gated.
+                </p>
+                {import.meta.env.VITE_ADS_ENABLED === 'true' && (
+                  <div className="pt-2.5 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
+                    <span className="text-[11px] text-slate-700 dark:text-slate-300 font-medium">Consent Choice:</span>
+                    <select
+                      value={adConsent || 'denied'}
+                      onChange={(e) => setAdConsent(e.target.value as any)}
+                      aria-label="Ad Consent choice"
+                      className="text-xs px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-100 cursor-pointer"
+                    >
+                      <option value="denied">Reject All Ads</option>
+                      <option value="non_personalized">Non-Personalized Ads Only</option>
+                      <option value="granted">Allow Personalized Ads</option>
+                    </select>
+                  </div>
+                )}
+              </div>
             </section>
 
             {/* Delete All Data */}

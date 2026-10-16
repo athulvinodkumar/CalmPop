@@ -32,6 +32,19 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   // Only handle GET requests and local scheme
   if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+
+  // CRITICAL REQUIREMENT: Never cache ad scripts or analytics tags in the service worker
+  if (
+    url.hostname.includes('googlesyndication.com') ||
+    url.hostname.includes('google-analytics.com') ||
+    url.hostname.includes('googletagmanager.com') ||
+    url.hostname.includes('doubleclick.net') ||
+    url.hostname.includes('adservice.google.com')
+  ) {
+    return;
+  }
   
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
